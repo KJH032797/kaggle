@@ -1,6 +1,7 @@
 import pandas as pd
 import seaborn as sns
 from sklearn.ensemble import RandomForestRegressor
+from sklearn.metrics import mean_absolute_error
 
 train = pd.read_csv('data/train.csv')
 test = pd.read_csv('data/test.csv')
@@ -14,17 +15,25 @@ cor=train.corr(numeric_only=True)['SalePrice'].abs().sort_values(ascending=False
 features=['OverallQual','GrLivArea','GarageCars','GarageArea']
 
 # 결측치 처리
-# 학습용(정답지)
+# 학습지
 X_train = train[features].fillna(0)
-# 실습용(문제지)
+# 문제지
 X_test = test[features].fillna(0)
-# 답안지
-y=train['SalePrice']
+# 학습답안지
+y_train=train['SalePrice']
 
 # 모델학습(회귀Regression)
 model=RandomForestRegressor(n_estimators=100,random_state=42)
-model.fit(X_train,y)
+model.fit(X_train, y_train)
 
-# 예측
-test['SalePrice']=model.predict(X_test)
-test[['Id','SalePrice']].to_csv('data/test_submission.csv',index=False)
+# 예측 결과 및 저장
+y_pred=model.predict(X_test)
+sub = pd.DataFrame({
+    'Id':test['Id'],
+    'SalePrice' : y_pred,
+})
+
+sub.to_csv('data/test_submission.csv',index=False)
+
+# 결과
+mae=mean_absolute_error()
